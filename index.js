@@ -25,3 +25,8 @@ const port = process.env.PORT || 8000;
 server.listen(port, () => {
   console.info(`Listening on ${port}`);
 });
+
+// 💡 第2引数に '0.0.0.0' を明示的に追加して、Renderからのアクセスを完全に許可します
+server.listen(port, '0.0.0.0', () => {
+  console.info(`Listening on ${port}`);
+});
