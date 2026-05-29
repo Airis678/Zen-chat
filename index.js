@@ -20,7 +20,8 @@ const server = http.createServer(basic.check((req, res) => {
   router.route(req, res);
 }));
 
-const port = 8000;
+// Renderのポートがあればそれを使い、なければ8000を使う設定
+const port = process.env.PORT || 8000; 
 server.listen(port, () => {
   console.info(`Listening on ${port}`);
 });
