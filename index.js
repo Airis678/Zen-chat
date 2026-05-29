@@ -32,4 +32,4 @@ const port = process.env.PORT || 8000;
 // 第2引数に '0.0.0.0' を指定することで、Render上での接続待ち受けを確実にします
 server.listen(port, '0.0.0.0', () => {
   console.info(new Date() + ` Listening on ${port}`);
-});
+});// fix
