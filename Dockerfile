@@ -15,10 +15,10 @@ ENV LANG ja_JP.UTF-8
 ENV TZ Asia/Tokyo
 
 # 1. パッケージ管理ファイルをコンテナにコピー
-COPY package*.json ./
+COPY package*.json yarn.lock* ./
 
-# 2. 本番環境に必要なパッケージのみをインストール
-RUN npm ci --only=production
+# 2. 💡 npm から yarn のインストールコマンドに変更！
+RUN yarn install --production --frozen-lockfile
 
 # 3. プロジェクトの全ファイルをコンテナにコピー
 COPY . .
