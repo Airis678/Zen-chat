@@ -1,0 +1,64 @@
+doctype html
+html(lang="ja")
+  head
+    meta(charset="UTF-8")
+    // Bootstrap CSSの読み込み
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css")
+    // Bootstrap Iconsの読み込み
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css")
+    title ZENチャット
+    style.
+      :root { scroll-behavior: auto; } /* 瞬時に下スクロールさせるための設定 */
+  body.container
+    // ナビゲーションバー
+    nav.navbar.fixed-top.bg-primary
+      div.container-fluid
+        h1.text-light.navbar-brand.mx-auto
+          i.bi.bi-chat-dots-fill.me-1
+          | ZENチャット
+        a(href="/logout").btn.btn-outline-light.btn-sm ログアウト
+
+    // 投稿一覧（下部固定フォームと被らないように余白を調整）
+    div.my-5.pt-5.pb-5.mb-5
+      each post in posts
+        - const isMine = (user === post.postedBy)
+        // 自分の投稿なら枠線を青にする（名無し投稿時は青くなりません）
+        div.card.my-3(class=(isMine ? 'border-primary' : ''))
+          div.card-body
+            div.d-flex.justify-content-between
+              h5.card-title 
+                | #{post.postedBy}
+                // 管理者（admin）なら公式チェックバッジを表示
+                if post.postedBy === 'admin'
+                  i.bi.bi-patch-check-fill.ms-1.text-primary
+              
+              small.card-text.text-muted(data-bs-toggle="tooltip" title=post.absoluteCreatedAt)
+                | #{post.relativeCreatedAt}
+            p.card-text.lead(style="white-space: pre-wrap;") #{post.content}
+
+    // 投稿フォームを下部に固定
+    div.fixed-bottom.p-3.bg-body.border-top
+      form(method="post" action="/posts").container-fluid
+        div.row.g-2
+          div.col-10
+            textarea(name="content" rows="1" placeholder="メッセージを入力" required).form-control
+          div.col-2
+            button(type="submit").btn.btn-primary.w-100 
+              i.bi.bi-send.me-1
+              | 投稿
+        // テキストエリアの下にチェックボックスを配置
+        div.form-check.mt-2.mb-1
+          input#anonymous.form-check-input(type="checkbox" name="anonymous" value="true")
+          label.form-check-label.text-muted.small(for="anonymous") 
+            i.bi.bi-incognito.me-1
+            | 名無しで投稿する
+
+    // Bootstrap JSの読み込み
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
+    
+    script.
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+      
+      // 画面を開いた瞬間、またはリダイレクト時に一番下（最新ログ）まで自動スクロール
+      window.scrollTo(0, document.body.scrollHeight);

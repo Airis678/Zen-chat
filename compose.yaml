@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    tty: true  # サーバープログラムが未完成でもコンテナを起動し続けさせる設定
+    ports:
+      - "8000:8000"
+    volumes:
+      - ".:/app"          # ホストのコードをコンテナと同期
+      - "/app/node_modules" # Volume Trick: パッケージの実体はコンテナ側に保持 [1]
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16.1
+    environment:
+      - POSTGRES_USER=nn_chat_db_user
+      - POSTGRES_PASSWORD=11223344  # .envの記述と完全に一致させる必要があります
+      - POSTGRES_DB=nn_chat_db
+      - TZ=Asia/Tokyo
+    volumes:
+      - "../nn-chat-db:/var/lib/postgresql/data" # データの永続化設定 [2]
