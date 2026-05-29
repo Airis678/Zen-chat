@@ -1,32 +1,35 @@
 'use strict';
-const http = require('http');
+const http = require('node:http');
 const auth = require('http-auth');
 const router = require('./lib/router');
 
-// 🔐 Basic認証の設定
+// 1. Basic認証の設定 [3], [4]
+// users.htpasswd ファイルを使用して認証情報を管理します
 const basic = auth.basic({
-  realm: 'Enter username and password.'
-}, (username, password, callback) => {
-  // コテハン： admin / 1122  または  sato / 3344
-  callback(
-    (username === 'admin' && password === '1122') ||
-    (username === 'sato' && password === '3344')
-  );
+  file: './users.htpasswd'
 });
 
-// ⭕️ バージョン4系における100%正しいミドルウェア接続の書き方
-// basic.check() を使用してリクエスト処理を囲みます
+// 2. HTTPサーバーの作成 [5], [6], [4]
+// 全てのリクエストを basic.check で囲むことで、認証を必須にします
 const server = http.createServer(basic.check((req, res) => {
+  // 認証に成功した場合、routerモジュールに処理を渡します [2]
   router.route(req, res);
 }));
 
-// Renderのポートがあればそれを使い、なければ8000を使う設定
-const port = process.env.PORT || 8000; 
-server.listen(port, () => {
-  console.info(`Listening on ${port}`);
+// 3. エラーハンドリング [7]
+server.on('error', (e) => {
+  console.error(new Date() + ' Server Error', e);
+});
+server.on('clientError', (e) => {
+  console.error(new Date() + ' Client Error', e);
 });
 
-// 💡 第2引数に '0.0.0.0' を明示的に追加して、Renderからのアクセスを完全に許可します
+// 4. サーバーの起動設定 [8], [9]
+// Render環境では process.env.PORT を使用し、ローカルでは 8000番を使用します
+const port = process.env.PORT || 8000;
+
+// 修正ポイント：listen の呼び出しはこれ「1回だけ」にします
+// 第2引数に '0.0.0.0' を指定することで、Render上での接続待ち受けを確実にします
 server.listen(port, '0.0.0.0', () => {
-  console.info(`Listening on ${port}`);
+  console.info(new Date() + ` Listening on ${port}`);
 });
